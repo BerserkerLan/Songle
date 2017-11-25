@@ -1,8 +1,47 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.edu.s1572691.songle.songle.MapsActivity" />
+    >
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        tools:context="com.edu.s1572691.songle.songle.MapsActivity" />
+
+    <TextView
+        android:id="@+id/currentSong"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/black"
+        android:text="Current Song:"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/stageNo"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/black"
+        android:text="Current Level: 01"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
+
+    <Spinner
+        android:id="@+id/songNo"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:background="@android:color/black"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/currentSong" />
+</RelativeLayout>

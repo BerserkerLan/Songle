@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context="com.edu.s1572691.songle.songle.MenuActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/songle_logo_2" />
+
+    <Button
+        android:id="@+id/goToMap"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/imageView"
+        android:layout_centerVertical="true"
+        android:background="@android:color/white"
+        android:text="Play"
+        tools:layout_editor_absoluteX="44dp"
+        tools:layout_editor_absoluteY="250dp" />
+
+    <Button
+        android:id="@+id/tutorialButton"
+        android:layout_width="130dp"
+        android:background="@android:color/white"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/imageView"
+        android:layout_below="@+id/imageView"
+        android:layout_marginTop="45dp"
+        android:text="How to Play"
+        tools:layout_editor_absoluteX="44dp"
+        tools:layout_editor_absoluteY="366dp" />
+
+    <Button
+        android:id="@+id/toSongs"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/goToMap"
+        android:layout_alignBottom="@+id/goToMap"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/white"
+        android:layout_marginEnd="36dp"
+        android:text="Songs"
+        tools:layout_editor_absoluteX="222dp"
+        tools:layout_editor_absoluteY="250dp" />
+
+    <Button
+        android:id="@+id/achievements"
+        android:layout_width="130dp"
+        android:background="@android:color/white"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tutorialButton"
+        android:layout_alignBottom="@+id/tutorialButton"
+        android:layout_alignStart="@+id/toSongs"
+        android:text="Achievements"
+        tools:layout_editor_absoluteX="222dp"
+        tools:layout_editor_absoluteY="366dp" />
+</RelativeLayout>

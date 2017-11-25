@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@android:color/black"
+    android:layout_height="match_parent"
+    tools:context="com.edu.s1572691.songle.songle.SongWordsActivity">
+
+    <EditText
+        android:id="@+id/wordTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignTop="@+id/guessSong"
+        android:layout_marginBottom="70dp"
+        android:background="@null"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:inputType="textMultiLine"
+        android:textColor="@android:color/white"
+        android:textSize="15dp" />
+
+    <Button
+        android:id="@+id/guessSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="13dp"
+        android:background="@android:color/white"
+        android:layout_marginStart="57dp"
+        android:onClick="popUpTheGuess"
+        android:text="Guess" />
+
+    <Button
+        android:id="@+id/listenToSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/guessSong"
+        android:background="@android:color/white"
+        android:layout_marginStart="72dp"
+        android:layout_toEndOf="@+id/guessSong"
+        android:onClick="showHint"
+        android:text="Hint" />
+</RelativeLayout>
