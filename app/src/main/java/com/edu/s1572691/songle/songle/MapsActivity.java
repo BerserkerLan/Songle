@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -29,16 +31,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.google.maps.android.kml.KmlContainer;
 import com.google.maps.android.kml.KmlLayer;
 import com.google.maps.android.kml.KmlPlacemark;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,9 +60,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     InputStream inputStream;
-    KmlLayer layer = null;
     Spinner songNo;
     String kmlURL;
+    KMLPlacemarkers placemarkers;
+    ArrayList<Placemark> placeMarkersList;
 
 
     @Override
@@ -79,11 +88,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         songNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (layer != null) {
-                    layer.removeLayerFromMap();
-                }
-                kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + listOfSongs[position] + "/map1.kml";
+                kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + listOfSongs[position] + "/map1.txt";
                 new KMlTask().execute();
+
             }
 
             @Override
@@ -114,16 +121,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void getKMLStream(){
-        try {
+    public void getKMLStream() {
+
             //String kMlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/01/map1.kml";
-            inputStream = new URL(kmlURL).openStream();
-            layer = new KmlLayer(mMap, inputStream, getApplicationContext());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
+            URL oracle = null;
+            InputStreamReader in = null;
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            BufferedReader reader = null;
+            try {
+                oracle = new URL(kmlURL);
+                in = new InputStreamReader(oracle.openStream());
+                reader = new BufferedReader(in);
+
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                in.close();
+
+            } catch (MalformedURLException e) {
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String xml = stringBuilder.toString();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = XML.toJSONObject(xml);
+
+        } catch (JSONException e) {
             e.printStackTrace();
         }
+        String json = jsonObject.toString();
+        Gson gson = new Gson();
+        placemarkers = gson.fromJson(json, KMLPlacemarkers.class);
 
     }
 
@@ -220,39 +252,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //move map camera
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
 
-        ArrayList<String> sampleMarkers = new ArrayList<>();
-        for (KmlPlacemark placemark: layer.getPlacemarks()) {
-            sampleMarkers.add(placemark.getGeometry().getGeometryType());
-        }
-
-        Log.d("Sample Marker.. : ", sampleMarkers.toString());
-
-
-
-
 
 
     }
-    private class KMlTask extends AsyncTask<Void,String,KmlLayer> {
+
+    private class KMlTask extends AsyncTask<Void,String,KMLPlacemarkers> {
 
         @Override
-        protected KmlLayer doInBackground(Void... voids) {
+        protected KMLPlacemarkers doInBackground(Void... voids) {
 
             getKMLStream();
 
-            return layer;
+            return placemarkers;
         }
         @Override
-        protected void onPostExecute(KmlLayer mlayer) {
-            try {
-                if (layer != null) {
-                    layer.addLayerToMap();
+        protected void onPostExecute(KMLPlacemarkers mlayer) {
+
+            mMap.clear();
+
+            placeMarkersList = placemarkers.getKml().getDocument().getPlacemark();
+            MarkerOptions markerOptions = new MarkerOptions();
+            Bitmap bmp;
+            String tempCoordinate = "";
+            String d = "";
+            String dd = "";
+
+            for (int i = 0; i < placeMarkersList.size(); i++) {
+                tempCoordinate= placeMarkersList.get(i).getPoint().getCoordinates();
+                d = tempCoordinate.substring(0,tempCoordinate.indexOf(','));
+                dd = tempCoordinate.substring(tempCoordinate.indexOf(',')+1,tempCoordinate.indexOf(',',tempCoordinate.indexOf(',')+1));
+                try {
+                    bmp = BitmapFactory.decodeStream(new URL(placemarkers.getKml().getDocument().getStyle().getIconStyle().getIcon().getHref()).openStream());
+                    mMap.addMarker(markerOptions.position(new LatLng(Double.parseDouble(dd),Double.parseDouble(d)))
+                            .title(placeMarkersList.get(i).getName())
+                            .icon(BitmapDescriptorFactory.fromBitmap(bmp)));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (XmlPullParserException e) {
-                e.printStackTrace();
             }
+
+
 
         }
 
