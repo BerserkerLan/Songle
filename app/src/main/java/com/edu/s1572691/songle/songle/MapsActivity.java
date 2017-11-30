@@ -3,6 +3,8 @@ package com.edu.s1572691.songle.songle;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -59,9 +62,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
-    InputStream inputStream;
     Spinner songNo;
     String kmlURL;
+    String songURL;
+    SQLiteDatabase wordsDatabase;
+    String currentSongNo;
+    SongParse theSongs;
     KMLPlacemarkers placemarkers;
     ArrayList<Placemark> placeMarkersList;
 
@@ -79,6 +85,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             StrictMode.setThreadPolicy(policy);
         }
 
+        songURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.txt";
+
+
         songNo = (Spinner) findViewById(R.id.songNo);
         final String[] listOfSongs = new String[]{"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18"};
 
@@ -88,6 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         songNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                currentSongNo = listOfSongs[position];
                 kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + listOfSongs[position] + "/map1.txt";
                 new KMlTask().execute();
 
@@ -98,6 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+
 
 
 
@@ -159,6 +170,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public void parseXML()  {
+        URL oracle = null;
+        InputStreamReader in = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        BufferedReader reader = null;
+        try {
+            oracle = new URL(songURL);
+            in = new InputStreamReader(oracle.openStream());
+            reader = new BufferedReader(in);
+
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+            in.close();
+
+        } catch (MalformedURLException e) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String xml = stringBuilder.toString();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = XML.toJSONObject(xml);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String json = jsonObject.toString();
+        Gson gson = new Gson();
+        theSongs = gson.fromJson(json, SongParse.class);
+        //songs.add(theSongs.getSong()[0].getTitle());
+        //theSongs = gsonXml.fromXml(xml, Songs.class);
+
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -191,9 +240,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
-
-
-        //mMap.addMarker(new MarkerOptions().position(temp[0]).title("Current Location"));
     }
     protected void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -276,24 +322,66 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String tempCoordinate = "";
             String d = "";
             String dd = "";
-
-            for (int i = 0; i < placeMarkersList.size(); i++) {
-                tempCoordinate= placeMarkersList.get(i).getPoint().getCoordinates();
-                d = tempCoordinate.substring(0,tempCoordinate.indexOf(','));
-                dd = tempCoordinate.substring(tempCoordinate.indexOf(',')+1,tempCoordinate.indexOf(',',tempCoordinate.indexOf(',')+1));
-                try {
-                    bmp = BitmapFactory.decodeStream(new URL(placemarkers.getKml().getDocument().getStyle().getIconStyle().getIcon().getHref()).openStream());
-                    mMap.addMarker(markerOptions.position(new LatLng(Double.parseDouble(dd),Double.parseDouble(d)))
-                            .title(placeMarkersList.get(i).getName())
-                            .icon(BitmapDescriptorFactory.fromBitmap(bmp)));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            wordsDatabase = openOrCreateDatabase("Words",Context.MODE_PRIVATE,null);
+            wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + currentSongNo + "(wposs VARCHAR)");
+            Cursor resultWords = wordsDatabase.rawQuery("SELECT * FROM tab" + currentSongNo,null);
+            resultWords.moveToFirst();
+            String word = "";
+            ArrayList<String> words = new ArrayList<>();
+            words.clear();
+            long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + currentSongNo,null);
+            if (count>0) {
+                word = resultWords.getString(resultWords.getColumnIndex("wposs"));
+                words.add(word);
+            }
+            while (resultWords.moveToNext()) {
+                word = resultWords.getString(resultWords.getColumnIndex("wposs"));
+                words.add(word);
             }
 
+            for (int i = 0; i < placeMarkersList.size(); i++) {
+                if (!words.contains(placeMarkersList.get(i).getName())){
+                    tempCoordinate = placeMarkersList.get(i).getPoint().getCoordinates();
+                    d = tempCoordinate.substring(0, tempCoordinate.indexOf(','));
+                    dd = tempCoordinate.substring(tempCoordinate.indexOf(',') + 1, tempCoordinate.indexOf(',', tempCoordinate.indexOf(',') + 1));
+                    try {
+                        bmp = BitmapFactory.decodeStream(new URL(placemarkers.getKml().getDocument().getStyle().getIconStyle().getIcon().getHref()).openStream());
+                        mMap.addMarker(markerOptions.position(new LatLng(Double.parseDouble(dd), Double.parseDouble(d)))
+                                .title(placeMarkersList.get(i).getName())
+                                .icon(BitmapDescriptorFactory.fromBitmap(bmp)));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    marker.setVisible(false);
+                    Toast.makeText(getApplicationContext(),"Collected " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                    wordsDatabase = openOrCreateDatabase("Words",Context.MODE_PRIVATE,null);
+                    wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + currentSongNo + "(wposs VARCHAR)");
+                    wordsDatabase.execSQL("INSERT INTO tab" +currentSongNo + "(wposs) VALUES('" + marker.getTitle() + "');");
+                    wordsDatabase.close();
+                    return false;
+                }
+            });
 
+
+        }
+
+    }
+
+    private class XMLTask extends AsyncTask<Void,String,SongParse> {
+
+        @Override
+        protected SongParse doInBackground(Void... voids) {
+            return null;
+        }
+        @Override
+        protected void onPostExecute(SongParse song) {
 
         }
 
