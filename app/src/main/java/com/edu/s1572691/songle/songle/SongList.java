@@ -1,6 +1,9 @@
 package com.edu.s1572691.songle.songle;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +40,7 @@ public class SongList extends AppCompatActivity {
     ArrayList<String> titles;
     ArrayList<String> percents;
     String songURL;
+    int numOfWordsInSong;
     ArrayList<String> youtubeURLS;
     SongParse theSongs;
 
@@ -62,18 +68,6 @@ public class SongList extends AppCompatActivity {
     }
 
     public void parseXML()  {
-       /* XmlParserCreator parserCreator = new XmlParserCreator() {
-            @Override
-            public XmlPullParser createParser() {
-                try {
-                    return XmlPullParserFactory.newInstance().newPullParser();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }; */
-        //GsonXml gsonXml = new GsonXmlBuilder().setXmlParserCreator(parserCreator).create();
-
         URL oracle = null;
         InputStreamReader in = null;
         StringBuilder stringBuilder = new StringBuilder();
@@ -106,19 +100,12 @@ public class SongList extends AppCompatActivity {
         String json = jsonObject.toString();
         Gson gson = new Gson();
         theSongs = gson.fromJson(json, SongParse.class);
-        //songs.add(theSongs.getSong()[0].getTitle());
-        //theSongs = gsonXml.fromXml(xml, Songs.class);
+
 
         for (int i = 0; i < theSongs.getSong().getSong().length; i++) {
 
             authors.add(theSongs.getSong().getSong()[i].getArtist());
             youtubeURLS.add(theSongs.getSong().getSong()[i].getLink());
-            if (i == 0) {
-                percents.add("100.0% found");
-            }
-            else {
-                percents.add("0.0% found");
-            }
             titles.add(theSongs.getSong().getSong()[i].getTitle());
             if (i < 9) {
                 songs.add("Song 0" + (i + 1));
@@ -127,12 +114,62 @@ public class SongList extends AppCompatActivity {
                 songs.add("Song " + (i + 1));
             }
         }
+       SQLiteDatabase wordsDatabase = openOrCreateDatabase("Words", Context.MODE_PRIVATE,null);
+        DecimalFormat df = new DecimalFormat("#.#");
+
+        for (String sg : songs) {
+            getNumWordsInSongs(sg.substring(sg.indexOf(' ') + 1));
+            wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + sg.substring(sg.indexOf(' ') + 1) + "(wposs VARCHAR)");
+            long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + sg.substring(sg.indexOf(' ') + 1),null);
+            percents.add(df.format(((double)count/(double)numOfWordsInSong) * (double)100d) + "% Completed");
+        }
 
         CustomSongAdapter songAdapter = new CustomSongAdapter(songs,percents,this);
         songList.setAdapter(songAdapter);
+    }
+    public void getNumWordsInSongs(String songNo) {
+        String lyricURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + songNo + "/lyrics.txt";
+        URL oracle = null;
+        InputStreamReader in = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        BufferedReader reader = null;
 
 
+        try {
+            oracle = new URL(lyricURL);
+            in = new InputStreamReader(oracle.openStream());
+            reader = new BufferedReader(in);
 
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line + "\n");
+            }
+            in.close();
+
+        } catch (MalformedURLException e) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String lyrics = stringBuilder.toString();
+
+        /*lyrics = lyrics.replaceAll(",","");
+        lyrics = lyrics.replaceAll("\\?","");
+        lyrics = lyrics.replaceAll("\\.","");
+        lyrics = lyrics.replaceAll("\\)","");
+        lyrics = lyrics.replaceAll("\\(","");*/
+
+        String[] lyricsWords = lyrics.split("\\n");
+
+        String[] words;
+
+        numOfWordsInSong = 0;
+
+        for (int i = 0; i < lyricsWords.length; i++) {
+            words = lyricsWords[i].split(" ");
+            numOfWordsInSong += words.length;
+        }
     }
     public void goToLyrics(View v) {
         Intent intent = new Intent(this, SongWordsActivity.class);

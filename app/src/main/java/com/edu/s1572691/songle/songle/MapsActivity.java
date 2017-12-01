@@ -89,25 +89,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         songNo = (Spinner) findViewById(R.id.songNo);
-        final String[] listOfSongs = new String[]{"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18"};
 
-        ArrayAdapter<String> songsAdapter = new ArrayAdapter<String>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
-        songNo.setAdapter(songsAdapter);
-
-        songNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                currentSongNo = listOfSongs[position];
-                kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + listOfSongs[position] + "/map1.txt";
-                new KMlTask().execute();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        new XMLTask().execute();
 
 
 
@@ -378,10 +361,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected SongParse doInBackground(Void... voids) {
-            return null;
+            parseXML();
+            return theSongs;
         }
         @Override
         protected void onPostExecute(SongParse song) {
+
+            final String[] listOfSongs = new String[theSongs.getSong().getSong().length];
+            for (int i = 0; i < listOfSongs.length; i++) {
+                if (i <9) {
+                    listOfSongs[i] =  "0" + (i+1);
+                }
+                else {
+                    listOfSongs[i] = "" + (i+1);
+                }
+            }
+
+            ArrayAdapter<String> songsAdapter = new ArrayAdapter<String>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
+            songNo.setAdapter(songsAdapter);
+
+            songNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    currentSongNo = listOfSongs[position];
+                    kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + listOfSongs[position] + "/map1.txt";
+                    new KMlTask().execute();
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
 
         }
 
