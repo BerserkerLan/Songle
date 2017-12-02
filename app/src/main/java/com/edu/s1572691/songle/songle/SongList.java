@@ -154,12 +154,6 @@ public class SongList extends AppCompatActivity {
 
         String lyrics = stringBuilder.toString();
 
-        /*lyrics = lyrics.replaceAll(",","");
-        lyrics = lyrics.replaceAll("\\?","");
-        lyrics = lyrics.replaceAll("\\.","");
-        lyrics = lyrics.replaceAll("\\)","");
-        lyrics = lyrics.replaceAll("\\(","");*/
-
         String[] lyricsWords = lyrics.split("\\n");
 
         String[] words;
