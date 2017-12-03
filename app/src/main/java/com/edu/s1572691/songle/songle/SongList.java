@@ -175,13 +175,7 @@ public class SongList extends AppCompatActivity {
         intent2.putExtra("youtube",getSelectedYoutube(v));
         intent2.putExtra("num",getSelected(v));
         String sel =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
-        if (sel.compareTo("Song 01") == 0) {
-            startActivity(intent2);
-        }
-        else {
-            startActivity(intent);
-        }
-
+        startActivity(intent);
     }
 
     public String getSelectedTitle(View v) {
