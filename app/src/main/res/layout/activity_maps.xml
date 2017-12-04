@@ -32,8 +32,9 @@
         android:layout_height="30dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:layout_marginEnd="18dp"
         android:background="@android:color/black"
-        android:text="Current Level: 01"
+        android:text="Current Level:"
         android:textColor="@android:color/white"
         android:textSize="20dp" />
 
@@ -44,4 +45,12 @@
         android:background="@android:color/black"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/currentSong" />
+
+    <Spinner
+        android:id="@+id/levelNo"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/black" />
 </RelativeLayout>

@@ -38,7 +38,7 @@ import java.util.ArrayList;
         public void setIcon(Icon Icon) { this.Icon = Icon; }
     }
 
-    class Style
+    /*class Style
     {
         private String id;
 
@@ -51,7 +51,7 @@ import java.util.ArrayList;
         public IconStyle getIconStyle() { return this.IconStyle; }
 
         public void setIconStyle(IconStyle IconStyle) { this.IconStyle = IconStyle; }
-    }
+    }*/
 
     class Point
     {
@@ -91,11 +91,11 @@ import java.util.ArrayList;
 
     class Document
     {
-        private Style Style;
+        //private Style[] Style;
 
-        public Style getStyle() { return this.Style; }
+        //public Style[] getStyle() { return this.Style; }
 
-        public void setStyle(Style Style) { this.Style = Style; }
+        //public void setStyle(Style[] Style) { this.Style = Style; }
 
         private ArrayList<Placemark> Placemark;
 

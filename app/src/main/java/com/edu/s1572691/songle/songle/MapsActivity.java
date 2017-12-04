@@ -64,8 +64,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Spinner songNo;
+    Spinner levelNo;
     String kmlURL;
-    TextView levelTextView;
     String songURL;
     SQLiteDatabase wordsDatabase;
     String currentSongNo;
@@ -73,7 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int numOfMarkers;
     SongParse theSongs;
     KMLPlacemarkers placemarkers;
-    int currentLevel;
+    String currentLevel;
     ArrayList<Placemark> placeMarkersList;
 
 
@@ -89,19 +89,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        currentLevel = 1;
-        levelTextView = (TextView) findViewById(R.id.stageNo);
-
         songURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.txt";
-
-
+        currentLevel="1";
+        currentSongNo="01";
         songNo = (Spinner) findViewById(R.id.songNo);
-
+        levelNo = (Spinner) findViewById(R.id.levelNo);
         new XMLTask().execute();
     }
 
     public void getKMLStream() {
-            URL oracle = null;
+        kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + currentSongNo + "/map" + currentLevel + ".txt";
+        URL oracle = null;
             InputStreamReader in = null;
             StringBuilder stringBuilder = new StringBuilder();
             String line;
@@ -133,15 +131,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String json = jsonObject.toString();
         Gson gson = new Gson();
         placemarkers = gson.fromJson(json, KMLPlacemarkers.class);
-    }
-    public boolean levelComplete() {
-
-        if (numOfMarkers == words.size()) {
-            return true;
+        placeMarkersList = placemarkers.getKml().getDocument().getPlacemark();
+        MarkerOptions markerOptions = new MarkerOptions();
+        wordsDatabase = openOrCreateDatabase("Words",Context.MODE_PRIVATE,null);
+        wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + currentSongNo + "(wposs VARCHAR)");
+        Cursor resultWords = wordsDatabase.rawQuery("SELECT * FROM tab" + currentSongNo,null);
+        resultWords.moveToFirst();
+        String word = "";
+        words = new ArrayList<>();
+        words.clear();
+        long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + currentSongNo,null);
+        if (count>0) {
+            word = resultWords.getString(resultWords.getColumnIndex("wposs"));
+            words.add(word);
         }
-        return false;
+        while (resultWords.moveToNext()) {
+            word = resultWords.getString(resultWords.getColumnIndex("wposs"));
+            words.add(word);
+        }
+        wordsDatabase.close();
+        numOfMarkers = placeMarkersList.size();
     }
-
     public void parseXML()  {
         URL oracle = null;
         InputStreamReader in = null;
@@ -307,38 +317,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         @Override
         protected void onPostExecute(KMLPlacemarkers mlayer) {
-
             mMap.clear();
-
-            placeMarkersList = placemarkers.getKml().getDocument().getPlacemark();
-            MarkerOptions markerOptions = new MarkerOptions();
-            Bitmap bmp;
             String tempCoordinate = "";
             String d = "";
             String dd = "";
-            wordsDatabase = openOrCreateDatabase("Words",Context.MODE_PRIVATE,null);
-            wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + currentSongNo + "(wposs VARCHAR)");
-            Cursor resultWords = wordsDatabase.rawQuery("SELECT * FROM tab" + currentSongNo,null);
-            resultWords.moveToFirst();
-            String word = "";
-            words = new ArrayList<>();
-            words.clear();
-            long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + currentSongNo,null);
-            if (count>0) {
-                word = resultWords.getString(resultWords.getColumnIndex("wposs"));
-                words.add(word);
-            }
-            while (resultWords.moveToNext()) {
-                word = resultWords.getString(resultWords.getColumnIndex("wposs"));
-                words.add(word);
-            }
-            numOfMarkers = placeMarkersList.size();
-            if (words.size() == placeMarkersList.size()) {
-                if (currentLevel < 5) {
-                    currentLevel++;
-                    new KMlTask().execute();
-                }
-            }
+            Bitmap bmp;
+            MarkerOptions markerOptions = new MarkerOptions();
+
 
             for (int i = 0; i < placeMarkersList.size(); i++) {
                 if (!words.contains(placeMarkersList.get(i).getName())){
@@ -346,7 +331,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     d = tempCoordinate.substring(0, tempCoordinate.indexOf(','));
                     dd = tempCoordinate.substring(tempCoordinate.indexOf(',') + 1, tempCoordinate.indexOf(',', tempCoordinate.indexOf(',') + 1));
                     try {
-                        bmp = BitmapFactory.decodeStream(new URL(placemarkers.getKml().getDocument().getStyle().getIconStyle().getIcon().getHref()).openStream());
+                        bmp = BitmapFactory.decodeStream(new URL("http://maps.google.com/mapfiles/kml/paddle/wht-blank.png").openStream());
                         mMap.addMarker(markerOptions.position(new LatLng(Double.parseDouble(dd), Double.parseDouble(d)))
                                 .title(placeMarkersList.get(i).getName())
                                 .icon(BitmapDescriptorFactory.fromBitmap(bmp)));
@@ -369,16 +354,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         wordsDatabase.execSQL("INSERT INTO tab" + currentSongNo + "(wposs) VALUES('" + marker.getTitle() + "');");
                         words.add(marker.getTitle());
                         wordsDatabase.close();
-                        return false;
                     }
                     else {
                         Toast.makeText(getApplicationContext(), "Not close enough to pick up this word!",Toast.LENGTH_SHORT).show();
-                    }
-                    if (levelComplete()) {
-                        if (currentLevel < 5) {
-                            currentLevel++;
-                            new KMlTask().execute();
-                        }
                     }
                     return false;
                 }
@@ -412,12 +390,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ArrayAdapter<String> songsAdapter = new ArrayAdapter<String>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
             songNo.setAdapter(songsAdapter);
 
+            final String[] listOfLevels = {"1","2","3","4","5"};
+            ArrayAdapter<String> levelsAdapter = new ArrayAdapter<String>(MapsActivity.this,R.layout.dropdown_text_view,listOfLevels);
+            levelNo.setAdapter(levelsAdapter);
+
+            levelNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (!currentLevel.equals(listOfLevels[position])) {
+                        currentLevel = listOfLevels[position];
+                        new KMlTask().execute();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
             songNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    currentSongNo = listOfSongs[position];
-                    kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + listOfSongs[position] + "/map" + currentLevel + ".txt";
-                    new KMlTask().execute();
+                        currentSongNo = listOfSongs[position];
+                        new KMlTask().execute();
+
 
                 }
 
