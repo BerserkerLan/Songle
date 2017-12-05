@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -18,12 +17,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,30 +28,23 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
-import com.google.maps.android.kml.KmlContainer;
-import com.google.maps.android.kml.KmlLayer;
-import com.google.maps.android.kml.KmlPlacemark;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -85,10 +75,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         songURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.txt";
         currentLevel="1";
         currentSongNo="01";
@@ -99,11 +89,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void getKMLStream() {
         kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + currentSongNo + "/map" + currentLevel + ".txt";
-        URL oracle = null;
-            InputStreamReader in = null;
+            URL oracle;
+            InputStreamReader in;
             StringBuilder stringBuilder = new StringBuilder();
             String line;
-            BufferedReader reader = null;
+            BufferedReader reader;
             try {
                 oracle = new URL(kmlURL);
                 in = new InputStreamReader(oracle.openStream());
@@ -113,8 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     stringBuilder.append(line);
                 }
                 in.close();
-
-            } catch (MalformedURLException e) {
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -128,16 +116,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        assert jsonObject != null;
         String json = jsonObject.toString();
         Gson gson = new Gson();
         placemarkers = gson.fromJson(json, KMLPlacemarkers.class);
         placeMarkersList = placemarkers.getKml().getDocument().getPlacemark();
-        MarkerOptions markerOptions = new MarkerOptions();
         wordsDatabase = openOrCreateDatabase("Words",Context.MODE_PRIVATE,null);
         wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + currentSongNo + "(wposs VARCHAR)");
         Cursor resultWords = wordsDatabase.rawQuery("SELECT * FROM tab" + currentSongNo,null);
         resultWords.moveToFirst();
-        String word = "";
+        String word;
         words = new ArrayList<>();
         words.clear();
         long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + currentSongNo,null);
@@ -149,15 +137,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             word = resultWords.getString(resultWords.getColumnIndex("wposs"));
             words.add(word);
         }
+        resultWords.close();
         wordsDatabase.close();
         numOfMarkers = placeMarkersList.size();
     }
     public void parseXML()  {
-        URL oracle = null;
-        InputStreamReader in = null;
+        URL oracle;
+        InputStreamReader in;
         StringBuilder stringBuilder = new StringBuilder();
         String line;
-        BufferedReader reader = null;
+        BufferedReader reader;
         try {
             oracle = new URL(songURL);
             in = new InputStreamReader(oracle.openStream());
@@ -167,8 +156,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 stringBuilder.append(line);
             }
             in.close();
-
-        } catch (MalformedURLException e) {
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -182,6 +169,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        assert jsonObject != null;
         String json = jsonObject.toString();
         Gson gson = new Gson();
         theSongs = gson.fromJson(json, SongParse.class);
@@ -206,14 +194,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //LatLng sydney = new LatLng(-34, 151);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PackageManager.PERMISSION_GRANTED);
             return;
         }
@@ -281,22 +261,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double mLat = markerLocation.latitude;
         double mLong = markerLocation.longitude;
 
-        if ((distance(yourLat,yourLong, mLat, mLong, 'K') < 0.01)) {
-            return true;
-        }
-        return false;
+        return (distance(yourLat, yourLong, mLat, mLong) < 0.01);
     }
-    private double distance(double lat1, double lon1, double lat2, double lon2, char unit) {
+
+    //Method return distance b/w two points on map in KM
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
         dist = rad2deg(dist);
         dist = dist * 60 * 1.1515;
-        if (unit == 'K') {
-            dist = dist * 1.609344;
-        } else if (unit == 'N') {
-            dist = dist * 0.8684;
-        }
+        dist = dist * 1.609344;
         return (dist);
     }
     private double deg2rad(double deg) {
@@ -318,9 +293,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(KMLPlacemarkers mlayer) {
             mMap.clear();
-            String tempCoordinate = "";
-            String d = "";
-            String dd = "";
+            String tempCoordinate;
+            String d;
+            String dd;
             Bitmap bmp;
             MarkerOptions markerOptions = new MarkerOptions();
 
@@ -335,8 +310,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.addMarker(markerOptions.position(new LatLng(Double.parseDouble(dd), Double.parseDouble(d)))
                                 .title(placeMarkersList.get(i).getName())
                                 .icon(BitmapDescriptorFactory.fromBitmap(bmp)));
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -387,11 +360,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            ArrayAdapter<String> songsAdapter = new ArrayAdapter<String>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
+            ArrayAdapter<String> songsAdapter = new ArrayAdapter<>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
             songNo.setAdapter(songsAdapter);
 
             final String[] listOfLevels = {"1","2","3","4","5"};
-            ArrayAdapter<String> levelsAdapter = new ArrayAdapter<String>(MapsActivity.this,R.layout.dropdown_text_view,listOfLevels);
+            ArrayAdapter<String> levelsAdapter = new ArrayAdapter<>(MapsActivity.this,R.layout.dropdown_text_view,listOfLevels);
             levelNo.setAdapter(levelsAdapter);
 
             levelNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

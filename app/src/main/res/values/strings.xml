@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Songle</string>
     <string name="title_activity_maps">Map</string>
+    <string name="the_circle_layout_in_the_drawable_folder">The Circle layout in the drawable folder</string>
 </resources>

@@ -2,6 +2,7 @@ package com.edu.s1572691.songle.songle;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.StrictMode;
@@ -108,20 +109,44 @@ public class SongList extends AppCompatActivity {
             youtubeURLS.add(theSongs.getSong().getSong()[i].getLink());
             titles.add(theSongs.getSong().getSong()[i].getTitle());
             if (i < 9) {
-                songs.add("Song 0" + (i + 1));
+                songs.add("0" + (i + 1));
             }
             else {
-                songs.add("Song " + (i + 1));
+                songs.add("" + (i + 1));
             }
         }
        SQLiteDatabase wordsDatabase = openOrCreateDatabase("Words", Context.MODE_PRIVATE,null);
         DecimalFormat df = new DecimalFormat("#.#");
 
+        SQLiteDatabase guessedSongs = openOrCreateDatabase("GuessedSongs",Context.MODE_PRIVATE,null);
+        guessedSongs.execSQL("CREATE TABLE IF NOT EXISTS guessedSongs(songNo VARCHAR)");
+        Cursor resultWords = guessedSongs.rawQuery("SELECT * FROM guessedSongs",null);
+        resultWords.moveToFirst();
+        String word;
+        ArrayList<String> guessedWords = new ArrayList<>();
+        guessedWords.clear();
+        long countForWords = DatabaseUtils.longForQuery(guessedSongs, "SELECT COUNT(*) FROM guessedSongs",null);
+        if (countForWords>0) {
+            word = resultWords.getString(resultWords.getColumnIndex("songNo"));
+            guessedWords.add(word);
+        }
+        while (resultWords.moveToNext()) {
+            word = resultWords.getString(resultWords.getColumnIndex("songNo"));
+            guessedWords.add(word);
+        }
+        guessedSongs.close();
+        resultWords.close();
+
         for (String sg : songs) {
-            getNumWordsInSongs(sg.substring(sg.indexOf(' ') + 1));
-            wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + sg.substring(sg.indexOf(' ') + 1) + "(wposs VARCHAR)");
-            long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + sg.substring(sg.indexOf(' ') + 1),null);
-            percents.add(df.format(((double)count/(double)numOfWordsInSong) * (double)100d) + "% Completed");
+            if (!guessedWords.contains(sg)) {
+                getNumWordsInSongs(sg.substring(sg.indexOf(' ') + 1));
+                wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + sg.substring(sg.indexOf(' ') + 1) + "(wposs VARCHAR)");
+                long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab" + sg.substring(sg.indexOf(' ') + 1), null);
+                percents.add(df.format(((double) count / (double) numOfWordsInSong) * (double) 100d) + "% words found");
+            }
+            else {
+                percents.add("100% words found");
+            }
         }
 
         CustomSongAdapter songAdapter = new CustomSongAdapter(songs,percents,this);
@@ -134,8 +159,6 @@ public class SongList extends AppCompatActivity {
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         BufferedReader reader = null;
-
-
         try {
             oracle = new URL(lyricURL);
             in = new InputStreamReader(oracle.openStream());
@@ -146,12 +169,9 @@ public class SongList extends AppCompatActivity {
             }
             in.close();
 
-        } catch (MalformedURLException e) {
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         String lyrics = stringBuilder.toString();
 
         String[] lyricsWords = lyrics.split("\\n");
@@ -168,14 +188,21 @@ public class SongList extends AppCompatActivity {
     public void goToLyrics(View v) {
         Intent intent = new Intent(this, SongWordsActivity.class);
         Intent intent2 = new Intent(this,GuessedSongWords.class);
-        intent.putExtra("selected",getSelected(v));
-        intent.putExtra("selectedAuthor",getSelectedAuthor(v));
+        intent.putExtra("num",getSelected(v));
+        intent.putExtra("title",getSelectedTitle(v));
+        intent.putExtra("artist",getSelectedAuthor(v));
+        intent.putExtra("youtube",getSelectedYoutube(v));
+
         intent2.putExtra("title",getSelectedTitle(v));
         intent2.putExtra("artist",getSelectedAuthor(v));
         intent2.putExtra("youtube",getSelectedYoutube(v));
         intent2.putExtra("num",getSelected(v));
-        String sel =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
-        startActivity(intent);
+        if (((TextView) v.findViewById(R.id.percentTextView)).getText().toString() == "100% words found") {
+            startActivity(intent2);
+        }
+        else {
+            startActivity(intent);
+        }
     }
 
     public String getSelectedTitle(View v) {

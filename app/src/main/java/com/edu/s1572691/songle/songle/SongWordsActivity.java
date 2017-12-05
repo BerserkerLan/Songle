@@ -26,8 +26,10 @@ public class SongWordsActivity extends AppCompatActivity {
 
     TextView wordText;
     String no;
+    String songTitle;
     String author;
     String lyrics;
+    String youtube;
     String[] lyricsWords;
     String wordsWithDashes;
     SQLiteDatabase wordsDatabase;
@@ -38,8 +40,10 @@ public class SongWordsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_words);
         wordText = (TextView) findViewById(R.id.wordTextView);
-        no = getIntent().getExtras().getString("selected");
-        author = getIntent().getExtras().getString("selectedAuthor");
+        no = getIntent().getExtras().getString("num");
+        songTitle = getIntent().getExtras().getString("title");
+        author = getIntent().getExtras().getString("artist");
+        youtube = getIntent().getExtras().getString("youtube");
         setTitle("Song " + no);
         new LyricsTask().execute();
     }
@@ -116,7 +120,12 @@ public class SongWordsActivity extends AppCompatActivity {
 
 
     public void popUpTheGuess(View v) {
-        startActivity(new Intent(SongWordsActivity.this, GuessPopup.class));
+        Intent intent = new Intent(this, GuessPopup.class);
+        intent.putExtra("title",songTitle);
+        intent.putExtra("artist",author);
+        intent.putExtra("num",no);
+        intent.putExtra("youtube",youtube);
+        startActivity(intent);
     }
     public void showHint(View v) {
         Intent intent = new Intent(this, HintPopup.class);

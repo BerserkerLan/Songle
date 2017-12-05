@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:background="@android:color/black"
+    android:onClick="goToLyrics"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/songNameTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
-        android:onClick="goToLyrics"
-        android:text="TextView"
-        android:textColor="@android:color/white"
-        android:textSize="30dp" />
 
     <TextView
         android:id="@+id/percentTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:text="0.0% found"
+        android:layout_marginTop="35dp"
+        android:layout_marginStart="130dp"
+        android:text=""
         android:textColor="@android:color/white"
-        android:textSize="30dp" />
+        android:textSize="24sp" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        app:srcCompat="@drawable/circle_drawable"
+        android:contentDescription="@string/the_circle_layout_in_the_drawable_folder" />
+
+    <TextView
+        android:id="@+id/songNameTextView"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="27dp"
+        android:text=""
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="28sp" />
+
 </RelativeLayout>

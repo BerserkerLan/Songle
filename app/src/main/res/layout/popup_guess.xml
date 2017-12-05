@@ -28,6 +28,7 @@
     <Button
         android:id="@+id/guessButton"
         android:layout_width="wrap_content"
+        android:onClick="onGuessButtonClick"
         android:layout_height="wrap_content"
         android:layout_below="@+id/enterGuessText"
         android:layout_centerHorizontal="true"
