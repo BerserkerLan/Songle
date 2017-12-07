@@ -2,15 +2,20 @@ package com.edu.s1572691.songle.songle;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.stanfy.gsonxml.GsonXml;
@@ -41,6 +46,8 @@ public class SongList extends AppCompatActivity {
     ArrayList<String> titles;
     ArrayList<String> percents;
     String songURL;
+
+    CustomSongAdapter songAdapter;
     int numOfWordsInSong;
     ArrayList<String> youtubeURLS;
     SongParse theSongs;
@@ -63,9 +70,14 @@ public class SongList extends AppCompatActivity {
 
         songURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.txt";
 
-        parseXML();
+        new XMLTask().execute();
 
 
+    }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this,MenuActivity.class);
+        startActivity(intent);
     }
 
     public void parseXML()  {
@@ -84,8 +96,6 @@ public class SongList extends AppCompatActivity {
             }
             in.close();
 
-        } catch (MalformedURLException e) {
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,6 +108,7 @@ public class SongList extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        assert jsonObject != null;
         String json = jsonObject.toString();
         Gson gson = new Gson();
         theSongs = gson.fromJson(json, SongParse.class);
@@ -148,9 +159,28 @@ public class SongList extends AppCompatActivity {
                 percents.add("100% words found");
             }
         }
+        int solvedCount = 0;
 
-        CustomSongAdapter songAdapter = new CustomSongAdapter(songs,percents,this);
-        songList.setAdapter(songAdapter);
+        for (int i = 0; i < percents.size(); i++) {
+            if (percents.get(i) == "100% words found") {
+                solvedCount++;
+            }
+        }
+        SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        if (solvedCount >= 3) {
+            editor.putInt("ach1",1);
+        }
+        if (solvedCount >= 10) {
+            editor.putInt("ach4",1);
+        }
+
+        editor.apply();
+
+        songAdapter = new CustomSongAdapter(songs,percents,this);
+
+
+
     }
     public void getNumWordsInSongs(String songNo) {
         String lyricURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + songNo + "/lyrics.txt";
@@ -165,7 +195,7 @@ public class SongList extends AppCompatActivity {
             reader = new BufferedReader(in);
 
             while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
+                stringBuilder.append(line).append("\n");
             }
             in.close();
 
@@ -180,36 +210,50 @@ public class SongList extends AppCompatActivity {
 
         numOfWordsInSong = 0;
 
-        for (int i = 0; i < lyricsWords.length; i++) {
-            words = lyricsWords[i].split(" ");
+        for (String lyricsWord : lyricsWords) {
+            words = lyricsWord.split(" ");
             numOfWordsInSong += words.length;
         }
     }
     public void goToLyrics(View v) {
-        Intent intent = new Intent(this, SongWordsActivity.class);
-        Intent intent2 = new Intent(this,GuessedSongWords.class);
-        intent.putExtra("num",getSelected(v));
-        intent.putExtra("title",getSelectedTitle(v));
-        intent.putExtra("artist",getSelectedAuthor(v));
-        intent.putExtra("youtube",getSelectedYoutube(v));
-
-        intent2.putExtra("title",getSelectedTitle(v));
-        intent2.putExtra("artist",getSelectedAuthor(v));
-        intent2.putExtra("youtube",getSelectedYoutube(v));
-        intent2.putExtra("num",getSelected(v));
-        if (((TextView) v.findViewById(R.id.percentTextView)).getText().toString() == "100% words found") {
-            startActivity(intent2);
+        if (!hasInternet()) {
+            noInternetToast();
         }
         else {
-            startActivity(intent);
+            Intent intent = new Intent(this, SongWordsActivity.class);
+            Intent intent2 = new Intent(this, GuessedSongWords.class);
+            intent.putExtra("num", getSelected(v));
+            intent.putExtra("title", getSelectedTitle(v));
+            intent.putExtra("artist", getSelectedAuthor(v));
+            intent.putExtra("youtube", getSelectedYoutube(v));
+            intent.putExtra("percentageOfWordsCollected", getSelectedPercentage(v));
+
+            intent2.putExtra("title", getSelectedTitle(v));
+            intent2.putExtra("artist", getSelectedAuthor(v));
+            intent2.putExtra("youtube", getSelectedYoutube(v));
+            intent2.putExtra("num", getSelected(v));
+            if (((TextView) v.findViewById(R.id.percentTextView)).getText().toString().equals("100% words found")) {
+                startActivity(intent2);
+            } else {
+                startActivity(intent);
+            }
         }
+    }
+    public boolean hasInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        }
+        return false;
+    }
+    public void noInternetToast() {
+        Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
     }
 
     public String getSelectedTitle(View v) {
         String sel =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
         int n = songs.indexOf(sel);
-        String titl = titles.get(n);
-        return titl;
+        return titles.get(n);
     }
     public String getSelected(View v) {
         String sel =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
@@ -217,17 +261,37 @@ public class SongList extends AppCompatActivity {
         return sel;
     }
     public String getSelectedAuthor(View v) {
+        String sgNameSelected =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
+        int n = songs.indexOf(sgNameSelected);
+        return authors.get(n);
+
+    }
+    public int getSelectedPercentage(View v) {
         String sel =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
         int n = songs.indexOf(sel);
-        String author = authors.get(n);
-        return author;
-
+        if (percents.get(n).equals("25% words found")) {
+            return 1;
+        }
+        return 0;
     }
     public String getSelectedYoutube(View v) {
         String sel =  ((TextView) v.findViewById(R.id.songNameTextView)).getText().toString();
         int n = songs.indexOf(sel);
-        String youtube = youtubeURLS.get(n);
-        return youtube;
+        return youtubeURLS.get(n);
+    }
+
+    private class XMLTask extends AsyncTask<Void,String,SongParse> {
+
+        @Override
+        protected SongParse doInBackground(Void... voids) {
+            parseXML();
+            return theSongs;
+        }
+        @Override
+        protected void onPostExecute(SongParse song) {
+            songList.setAdapter(songAdapter);
+        }
+
     }
 
 

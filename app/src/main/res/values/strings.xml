@@ -2,4 +2,7 @@
     <string name="app_name">Songle</string>
     <string name="title_activity_maps">Map</string>
     <string name="the_circle_layout_in_the_drawable_folder">The Circle layout in the drawable folder</string>
+    <string name="red_circle">Red_Circle</string>
+    <string name="description_of_the_achievement_that_was_achieved">Description of the Achievement that was achieved</string>
+    <string name="achievement_title">Achievement Title</string>
 </resources>

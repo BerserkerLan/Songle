@@ -1,5 +1,6 @@
 package com.edu.s1572691.songle.songle;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -71,44 +72,28 @@ public class GuessedSongWords extends YouTubeBaseActivity {
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         BufferedReader reader = null;
-
-
         try {
             oracle = new URL(lyricURL);
             in = new InputStreamReader(oracle.openStream());
             reader = new BufferedReader(in);
 
             while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
+                stringBuilder.append(line).append("\n");
             }
             in.close();
-
-        } catch (MalformedURLException e) {
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         lyrics = stringBuilder.toString();
 
-        /*lyrics = lyrics.replaceAll(",","");
-        lyrics = lyrics.replaceAll("\\?","");
-        lyrics = lyrics.replaceAll("\\.","");
-        lyrics = lyrics.replaceAll("\\)","");
-        lyrics = lyrics.replaceAll("\\(","");*/
-
+    }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this,SongList.class);
+        startActivity(intent);
     }
     public void playYoutube(View v) {
-        /*String youtubeID = anime.data[0].attributes.youtubeVideoId;
-
-        String youtubeURL = "https://www.youtube.com/embed/" + youtubeID;
-
-        MediaController mc = new MediaController(this);
-        youtube.setVideoURI(Uri.parse(youtubeURL));
-        youtube.setMediaController(mc);
-        youtube.requestFocus();
-        youtube.start();*/
-
         youTubePlayerView.initialize(PlayerConfig.API_KEY, onInitializedListener);
 
 

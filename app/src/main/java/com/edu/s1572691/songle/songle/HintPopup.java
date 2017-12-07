@@ -1,6 +1,7 @@
 package com.edu.s1572691.songle.songle;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -15,6 +16,7 @@ public class HintPopup extends Activity {
     TextView hint;
     TextView firstLineText;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -24,11 +26,20 @@ public class HintPopup extends Activity {
         hint = (TextView) findViewById(R.id.hintTextView);
         firstLineText = (TextView) findViewById(R.id.firstLineTextView);
 
+        String title = getIntent().getExtras().getString("title");
+
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
         int width = dm.widthPixels;
         int height = dm.heightPixels;
+
+        SharedPreferences settings = getSharedPreferences("usedHints",MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("title:" + title ,1);
+        editor.apply();
+
+
 
         getWindow().setLayout((int)(width*0.8),(int) (height*0.5));
 

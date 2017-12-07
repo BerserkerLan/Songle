@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -28,6 +30,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -190,8 +193,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PackageManager.PERMISSION_GRANTED);
@@ -241,16 +242,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        //Place current location marker
-       /* LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);*/
-
-        //move map camera
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
 
 
 
@@ -261,7 +252,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double mLat = markerLocation.latitude;
         double mLong = markerLocation.longitude;
 
-        return (distance(yourLat, yourLong, mLat, mLong) < 0.01);
+        return (distance(yourLat, yourLong, mLat, mLong) < 1000);
     }
 
     //Method return distance b/w two points on map in KM
@@ -339,6 +330,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+    public boolean hasInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
+    }
+    public void noInternetToast() {
+        Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
+    }
 
     private class XMLTask extends AsyncTask<Void,String,SongParse> {
 
@@ -370,9 +368,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             levelNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (!currentLevel.equals(listOfLevels[position])) {
-                        currentLevel = listOfLevels[position];
-                        new KMlTask().execute();
+                    if (!hasInternet()) {
+                        noInternetToast();
+                    }
+                    else {
+                        if (!currentLevel.equals(listOfLevels[position])) {
+                            currentLevel = listOfLevels[position];
+                            new KMlTask().execute();
+                        }
                     }
                 }
 
@@ -385,8 +388,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             songNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (!hasInternet()) {
+                        noInternetToast();
+                    }
+                    else {
                         currentSongNo = listOfSongs[position];
                         new KMlTask().execute();
+                    }
 
 
                 }

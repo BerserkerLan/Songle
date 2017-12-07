@@ -33,6 +33,7 @@
 
         <activity
             android:name=".MapsActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_maps" />
         <activity android:name=".MenuActivity">
             <intent-filter>
@@ -41,20 +42,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SongList" />
-        <activity android:name=".SongWordsActivity" />
-        <activity android:name=".GuessedSongWords"></activity>
+        <activity android:name=".SongList"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".SongWordsActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".GuessedSongWords"
+            android:screenOrientation="portrait"
+            ></activity>
         <activity
             android:name=".GuessPopup"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.PopUpGuessTheme" />
         <activity
             android:name=".TutorialPopup"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.PopUpGuessTheme" />
         <activity
             android:name=".AchievementPopup"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.PopUpGuessTheme" />
         <activity
             android:name=".HintPopup"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.PopUpGuessTheme" />
 
     </application>

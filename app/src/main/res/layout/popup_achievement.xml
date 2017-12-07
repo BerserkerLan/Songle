@@ -1,139 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@android:color/black"
+    >
 
-    <TextView
-        android:id="@+id/chall1"
-        android:layout_width="170dp"
-        android:layout_height="30dp"
-        android:layout_alignStart="@+id/textView6"
-        android:layout_below="@+id/amountAchieved"
-        android:layout_marginTop="53dp"
-        android:text="Guess 3 songs" />
-
-    <TextView
-        android:id="@+id/amountAchieved"
-        android:layout_width="130dp"
-        android:layout_height="wrap_content"
+    <ListView
+        android:id="@+id/listOfAchievements"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="14dp"
-        android:layout_marginTop="12dp"
-        android:layout_toStartOf="@+id/chall2"
-        android:text="0/6 Achieved"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="italic" />
+        android:layout_marginTop="105dp" />
 
     <TextView
-        android:id="@+id/chall2"
-        android:layout_width="170dp"
-        android:layout_height="40dp"
-        android:layout_alignBaseline="@+id/chall1"
-        android:layout_alignBottom="@+id/chall1"
-        android:layout_alignStart="@+id/textView7"
-        android:text="Collect all words of any song" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="170dp"
+        android:id="@+id/achievementsTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView7"
-        android:layout_alignBottom="@+id/textView7"
-        android:layout_alignEnd="@+id/amountAchieved"
-        android:text="No Shit Sherlock"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+        android:layout_alignBottom="@+id/achievementsIcon"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="12dp"
+        android:layout_toEndOf="@+id/achievementsIcon"
+        android:fontFamily="Calibri"
+        android:text="Achievements"
+        android:textColor="@android:color/white"
+        android:textSize="28sp" />
+
+    <ImageView
+        android:id="@+id/achievementsIcon"
+        android:layout_width="50dp"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="11dp"
+        app:srcCompat="@drawable/achievements_icon"
+        android:src="@drawable/achievements_icon"
+        />
 
     <TextView
-        android:id="@+id/textView7"
-        android:layout_width="170dp"
+        android:id="@+id/numAchieved"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/chall2"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="12dp"
-        android:text="Eager Walker"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/chall1"
-        android:layout_below="@+id/chall1"
-        android:layout_marginTop="16dp"
-        android:text="Guessing Pro"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/chall3"
-        android:layout_width="170dp"
-        android:layout_height="40dp"
-        android:layout_alignStart="@+id/textView8"
-        android:layout_below="@+id/textView8"
-        android:text="Guess 4 songs without using the hint" />
-
-    <TextView
-        android:id="@+id/textView10"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView8"
-        android:layout_alignBottom="@+id/textView8"
-        android:layout_alignStart="@+id/chall2"
-        android:text="Halfway There!"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/chall4"
-        android:layout_width="170dp"
-        android:layout_height="40dp"
-        android:layout_alignStart="@+id/textView10"
-        android:layout_below="@+id/textView10"
-        android:text="Guess half of the songs" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/chall3"
-        android:layout_below="@+id/chall3"
-        android:layout_marginTop="26dp"
-        android:text="Unbeatable"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/chall5"
-        android:layout_width="170dp"
-        android:layout_height="40dp"
-        android:layout_alignStart="@+id/textView3"
-        android:layout_below="@+id/textView3"
-        android:text="Guess a song without collecting any words" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView3"
-        android:layout_alignBottom="@+id/textView3"
-        android:layout_alignStart="@+id/textView10"
-        android:text="Master Collector"
-        android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="170dp"
-        android:layout_height="40dp"
-        android:layout_alignStart="@+id/textView5"
-        android:layout_below="@+id/textView5"
-        android:text="Finish the Game" />
+        android:layout_alignBottom="@+id/achievementsTitle"
+        android:layout_marginStart="26dp"
+        android:fontFamily="Calibri"
+        android:textSize="25sp"
+        android:layout_toEndOf="@+id/achievementsTitle"
+        android:text="0/6"
+        android:textColor="@android:color/white"
+        />
 </RelativeLayout>

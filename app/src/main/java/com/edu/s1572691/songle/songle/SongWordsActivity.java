@@ -2,6 +2,7 @@ package com.edu.s1572691.songle.songle;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,6 +33,8 @@ public class SongWordsActivity extends AppCompatActivity {
     String youtube;
     String[] lyricsWords;
     String wordsWithDashes;
+    long countOfWordsCollected = 0;
+    int percentageOfWords;
     SQLiteDatabase wordsDatabase;
 
 
@@ -44,6 +47,7 @@ public class SongWordsActivity extends AppCompatActivity {
         songTitle = getIntent().getExtras().getString("title");
         author = getIntent().getExtras().getString("artist");
         youtube = getIntent().getExtras().getString("youtube");
+        percentageOfWords = getIntent().getExtras().getInt("percentageOfWordsCollected");
         setTitle("Song " + no);
         new LyricsTask().execute();
     }
@@ -63,11 +67,9 @@ public class SongWordsActivity extends AppCompatActivity {
             reader = new BufferedReader(in);
 
             while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
+                stringBuilder.append(line).append("\n");
             }
             in.close();
-
-        } catch (MalformedURLException e) {
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,9 +83,9 @@ public class SongWordsActivity extends AppCompatActivity {
         Cursor wordsCursor = wordsDatabase.rawQuery("SELECT * FROM tab" + songNo, null);
         wordsCursor.moveToFirst();
         String w = "";
-        long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab" + songNo, null);
+        countOfWordsCollected = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab" + songNo, null);
         if (wordsCursor != null) {
-            if (count > 0) {
+            if (countOfWordsCollected > 0) {
                 w = wordsCursor.getString(wordsCursor.getColumnIndex("wposs"));
                 wordsFound.add(w);
             }
@@ -96,24 +98,35 @@ public class SongWordsActivity extends AppCompatActivity {
 
         String[] words;
 
+        int numberOfWordsInSong = 0;
+
+      //HERE
         for (int i = 0; i < lyricsWords.length; i++) {
             words = lyricsWords[i].split(" ");
-            for (int g=0; g < words.length; g++) {
-                for (int k = 0; k < wordsFound.size(); k++) {
-                    if (wordsFound.get(k).substring(0, wordsFound.get(k).indexOf(':')).equals((i + 1) + "") && (wordsFound.get(k).substring(wordsFound.get(k).indexOf(':') + 1)).equals((g+1) + "")) {
-                        wordsWithDashes += words[Integer.parseInt(wordsFound.get(k).substring(wordsFound.get(k).indexOf(':') + 1)) - 1];
-                        wordsWithDashes += ' ';
-                    }
-                    }
-                for (int f = 0; f < words[g].length(); f++) {
-                    wordsWithDashes += "_";
+            numberOfWordsInSong += words.length;
+            for (int j = 0; j < words.length; j++) {
+                if (wordsFound.contains((i + 1) + ":" + (j + 1))) {
+                    wordsWithDashes += words[j];
+                    wordsWithDashes += " ";
                 }
-                wordsWithDashes += ' ';
+                else {
+                    for (int k = 0; k < words[j].length(); k++) {
+                        wordsWithDashes += "_";
+                    }
+                    wordsWithDashes += " ";
                 }
-
-                wordsWithDashes += "\n";
-
+            }
+            wordsWithDashes += "\n";
         }
+
+
+        if (countOfWordsCollected == numberOfWordsInSong) {
+            SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt("ach6",1);
+            editor.apply();
+        }
+
 
     }
 
@@ -125,15 +138,23 @@ public class SongWordsActivity extends AppCompatActivity {
         intent.putExtra("artist",author);
         intent.putExtra("num",no);
         intent.putExtra("youtube",youtube);
+        intent.putExtra("numCollected",countOfWordsCollected);
+        intent.putExtra("percentageCollected",percentageOfWords);
         startActivity(intent);
     }
     public void showHint(View v) {
         Intent intent = new Intent(this, HintPopup.class);
         intent.putExtra("artistName",author);
+        intent.putExtra("title",songTitle);
         intent.putExtra("firstLine",lyricsWords[0]);
         startActivity(intent);
 
 
+    }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this,SongList.class);
+        startActivity(intent);
     }
 
     private class LyricsTask extends AsyncTask<Void,String,String> {

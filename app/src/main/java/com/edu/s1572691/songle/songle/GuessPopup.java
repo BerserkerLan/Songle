@@ -3,6 +3,7 @@ package com.edu.s1572691.songle.songle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,6 +25,8 @@ public class GuessPopup extends Activity {
     String songNo;
     String songArist;
     TextView GuessText;
+    int percentageCollected;
+    long numberOfWordsCollected;
     Button GuessButton;
     SQLiteDatabase guessedSongs;
 
@@ -35,6 +38,8 @@ public class GuessPopup extends Activity {
         songNo = getIntent().getExtras().getString("num");
         songArist = getIntent().getExtras().getString("artist");
         songYoutube = getIntent().getExtras().getString("youtube");
+        numberOfWordsCollected = getIntent().getExtras().getLong("numCollected");
+        percentageCollected = getIntent().getExtras().getInt("percentageCollected");
         GuessText = (TextView) findViewById(R.id.enterGuessText);
         GuessButton = (Button) findViewById(R.id.guessButton);
 
@@ -60,11 +65,38 @@ public class GuessPopup extends Activity {
                 guessedSongs.execSQL("CREATE TABLE IF NOT EXISTS guessedSongs(songNo VARCHAR)");
                 guessedSongs.execSQL("INSERT INTO guessedSongs(songNo) VALUES('" + songNo + "');");
                 guessedSongs.close();
+                if (numberOfWordsCollected == 0) {
+                    SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putInt("ach5",1);
+                    editor.apply();
+                }
+                if (percentageCollected == 1) {
+                    SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putInt("ach2",1);
+                    editor.apply();
+                }
+                if (!usedHint()) {
+                    SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putInt("ach3",1);
+                    editor.apply();
+                }
                 startActivity(intent);
             }
             else {
                 Toast.makeText(getApplicationContext(),"Tough luck! Try again!",Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public boolean usedHint() {
+        SharedPreferences settings = getSharedPreferences("usedHints",MODE_PRIVATE);
+        int used = settings.getInt("title:" + songName,0);
+        if (used == 1) {
+            return true;
+        }
+        return false;
     }
 }

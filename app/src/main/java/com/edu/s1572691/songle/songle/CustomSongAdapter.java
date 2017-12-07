@@ -11,10 +11,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Rusab Asher on 21/10/2017.
- */
-
 public class CustomSongAdapter extends BaseAdapter implements ListAdapter {
 
     private ArrayList<String> songNames = new ArrayList<String>();
