@@ -78,7 +78,7 @@ public class AchievementPopup extends Activity {
         for (int i = 1; i <=6; i++ ) {
             if (settings.getInt(("ach" + i),0) == 1) {
                 achieved ++;
-                isComplete.set(i,true);
+                isComplete.set((i-1),true);
             }
         }
         numberAchieved.setText(achieved + "/6");
