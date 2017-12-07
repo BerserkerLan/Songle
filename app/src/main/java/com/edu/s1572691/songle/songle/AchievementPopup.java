@@ -53,22 +53,6 @@ public class AchievementPopup extends Activity {
         ArrayList<String> achievementDescriptions = new ArrayList<>();
         ArrayList<Boolean> isComplete = new ArrayList<>();
 
-       /* achievementsDB = openOrCreateDatabase("Achievements", Context.MODE_PRIVATE,null);
-        achievementsDB.execSQL("CREATE TABLE IF NOT EXISTS Achievements(ach1 VARCHAR, ach2 VARCHAR, ach3 VARCHAR, ach4 VARCHAR, ach5 VARCHAR,ach6 VARCHAR);");
-        Cursor achievementCursor = achievementsDB.rawQuery("SELECT * FROM Achievements",null);
-        achievementCursor.moveToFirst();
-        long count = DatabaseUtils.longForQuery(achievementsDB,"SELECT COUNT(*) FROM Achievements",null);
-        if (count > 0) {
-            isComplete.add(getBooleanFromString(achievementCursor.getString(achievementCursor.getColumnIndex("ach1"))));
-            isComplete.add(getBooleanFromString(achievementCursor.getString(achievementCursor.getColumnIndex("ach2"))));
-            isComplete.add(getBooleanFromString(achievementCursor.getString(achievementCursor.getColumnIndex("ach3"))));
-            isComplete.add(getBooleanFromString(achievementCursor.getString(achievementCursor.getColumnIndex("ach4"))));
-            isComplete.add(getBooleanFromString(achievementCursor.getString(achievementCursor.getColumnIndex("ach5"))));
-            isComplete.add(getBooleanFromString(achievementCursor.getString(achievementCursor.getColumnIndex("ach6"))));
-        }
-        achievementCursor.close();*/
-
-
         achievementTitles.add("No Shit Sherlock");
         achievementTitles.add("Eager Walker");
         achievementTitles.add("Guessing Pro");
@@ -94,6 +78,7 @@ public class AchievementPopup extends Activity {
         for (int i = 1; i <=6; i++ ) {
             if (settings.getInt(("ach" + i),0) == 1) {
                 achieved ++;
+                isComplete.set(i,true);
             }
         }
         numberAchieved.setText(achieved + "/6");

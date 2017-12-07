@@ -17,26 +17,14 @@
         android:id="@+id/achievementsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/achievementsIcon"
-        android:layout_marginBottom="20dp"
-        android:layout_marginStart="12dp"
-        android:layout_toEndOf="@+id/achievementsIcon"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="42dp"
+        android:layout_marginTop="25dp"
         android:fontFamily="Calibri"
         android:text="Achievements"
         android:textColor="@android:color/white"
         android:textSize="28sp" />
-
-    <ImageView
-        android:id="@+id/achievementsIcon"
-        android:layout_width="50dp"
-        android:layout_height="80dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="21dp"
-        android:layout_marginTop="11dp"
-        app:srcCompat="@drawable/achievements_icon"
-        android:src="@drawable/achievements_icon"
-        />
 
     <TextView
         android:id="@+id/numAchieved"
