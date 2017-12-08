@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+//Adapter for the Listview in AchievementPopup
 public class AchievementsListAdapter extends BaseAdapter implements ListAdapter {
 
     ArrayList<String> achievementNames = new ArrayList<>();
@@ -56,6 +57,7 @@ public class AchievementsListAdapter extends BaseAdapter implements ListAdapter 
 
         achievementTitle.setText(achievementNames.get(position));
         achievementDescription.setText(achievementDescriptions.get(position));
+        //Show green circle if completed else red circle
         if (isComplete.get(position)) {
             achievementIcon.setImageResource(R.drawable.circle_green);
         }

@@ -11,9 +11,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+//Adapter for Listview of SongList
 public class CustomSongAdapter extends BaseAdapter implements ListAdapter {
 
-    private ArrayList<String> songNames = new ArrayList<String>();
+    private ArrayList<String> songNames = new ArrayList<>();
     private ArrayList<String> songPercents = new ArrayList<>();
     private Context context;
 

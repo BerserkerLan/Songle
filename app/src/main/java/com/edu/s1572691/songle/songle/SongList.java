@@ -74,12 +74,14 @@ public class SongList extends AppCompatActivity {
 
 
     }
+    //Overwritten to not allow any activity overlaps
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(this,MenuActivity.class);
         startActivity(intent);
     }
 
+    //Method to set up Listview
     public void parseXML()  {
         URL oracle = null;
         InputStreamReader in = null;
@@ -129,6 +131,7 @@ public class SongList extends AppCompatActivity {
        SQLiteDatabase wordsDatabase = openOrCreateDatabase("Words", Context.MODE_PRIVATE,null);
         DecimalFormat df = new DecimalFormat("#.#");
 
+        //Get the songs which have been guessed from the Database
         SQLiteDatabase guessedSongs = openOrCreateDatabase("GuessedSongs",Context.MODE_PRIVATE,null);
         guessedSongs.execSQL("CREATE TABLE IF NOT EXISTS guessedSongs(songNo VARCHAR)");
         Cursor resultWords = guessedSongs.rawQuery("SELECT * FROM guessedSongs",null);
@@ -148,6 +151,7 @@ public class SongList extends AppCompatActivity {
         guessedSongs.close();
         resultWords.close();
 
+        //If songs have been guessed, just add 100% complete, else add the words found of it as a percentage
         for (String sg : songs) {
             if (!guessedWords.contains(sg)) {
                 getNumWordsInSongs(sg.substring(sg.indexOf(' ') + 1));
@@ -166,6 +170,7 @@ public class SongList extends AppCompatActivity {
                 solvedCount++;
             }
         }
+        //Check the number of solved songs for the Achievements
         SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         if (solvedCount >= 3) {
@@ -179,9 +184,8 @@ public class SongList extends AppCompatActivity {
 
         songAdapter = new CustomSongAdapter(songs,percents,this);
 
-
-
     }
+    //Returns the number of words each song has
     public void getNumWordsInSongs(String songNo) {
         String lyricURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + songNo + "/lyrics.txt";
         URL oracle = null;
@@ -215,6 +219,7 @@ public class SongList extends AppCompatActivity {
             numOfWordsInSong += words.length;
         }
     }
+    //Selects whether to go to guessed words activity or SongWordsActivity based on songs collected
     public void goToLyrics(View v) {
         if (!hasInternet()) {
             noInternetToast();
@@ -279,6 +284,8 @@ public class SongList extends AppCompatActivity {
         int n = songs.indexOf(sel);
         return youtubeURLS.get(n);
     }
+
+    //Async task to parse XML
 
     private class XMLTask extends AsyncTask<Void,String,SongParse> {
 

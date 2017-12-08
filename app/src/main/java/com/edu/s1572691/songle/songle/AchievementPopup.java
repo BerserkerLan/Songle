@@ -1,11 +1,7 @@
 package com.edu.s1572691.songle.songle;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.Nullable;
@@ -21,7 +17,6 @@ public class AchievementPopup extends Activity {
     ListView listOfAchievements;
     TextView numberAchieved;
     int achieved;
-    SQLiteDatabase achievementsDB;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +41,7 @@ public class AchievementPopup extends Activity {
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
-        getWindow().setLayout((int)(width),(int) (height));
+        getWindow().setLayout((width), (height));
     }
     public void setUpAchievementListview() {
         ArrayList<String> achievementTitles = new ArrayList<>();
@@ -73,9 +68,11 @@ public class AchievementPopup extends Activity {
                 isComplete.add(false);
 
         }
+        //Shared Preferences to see which Achievement has been completed
         SharedPreferences settings = getSharedPreferences("Achievements",MODE_PRIVATE);
 
         for (int i = 1; i <=6; i++ ) {
+            //Loops through all the achievements: If it is present with value 1, it has been achieved.
             if (settings.getInt(("ach" + i),0) == 1) {
                 achieved ++;
                 isComplete.set((i-1),true);

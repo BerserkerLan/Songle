@@ -2,6 +2,7 @@ package com.edu.s1572691.songle.songle;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -30,7 +31,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -83,6 +83,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         StrictMode.setThreadPolicy(policy);
 
         songURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.txt";
+        //Initialize first level and song no matter if user has already finished it
         currentLevel="1";
         currentSongNo="01";
         songNo = (Spinner) findViewById(R.id.songNo);
@@ -122,8 +123,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         assert jsonObject != null;
         String json = jsonObject.toString();
         Gson gson = new Gson();
-        placemarkers = gson.fromJson(json, KMLPlacemarkers.class);
+        placemarkers = gson.fromJson(json, KMLPlacemarkers.class); //Parses the Placemarkers to a Class
+
+        //Places all collected words for that song in the ArrayList words
         placeMarkersList = placemarkers.getKml().getDocument().getPlacemark();
+        //Begin Database usage
         wordsDatabase = openOrCreateDatabase("Words",Context.MODE_PRIVATE,null);
         wordsDatabase.execSQL("CREATE TABLE IF NOT EXISTS tab" + currentSongNo + "(wposs VARCHAR)");
         Cursor resultWords = wordsDatabase.rawQuery("SELECT * FROM tab" + currentSongNo,null);
@@ -132,6 +136,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         words = new ArrayList<>();
         words.clear();
         long count = DatabaseUtils.longForQuery(wordsDatabase, "SELECT COUNT(*) FROM tab"  + currentSongNo,null);
+        //Places all collected words for that song in the ArrayList words
         if (count>0) {
             word = resultWords.getString(resultWords.getColumnIndex("wposs"));
             words.add(word);
@@ -142,9 +147,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         resultWords.close();
         wordsDatabase.close();
+        //End of database usage
         numOfMarkers = placeMarkersList.size();
     }
     public void parseXML()  {
+        //Parses the XML for getting the number of songs in the XML
         URL oracle;
         InputStreamReader in;
         StringBuilder stringBuilder = new StringBuilder();
@@ -178,21 +185,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         theSongs = gson.fromJson(json, SongParse.class);
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+        //Checks if User has permission for GPS
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PackageManager.PERMISSION_GRANTED);
@@ -242,17 +240,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-
-
-
     }
+    //Method that returns true if user is close enough to collect the marker from the current location
     public boolean closeEnoughToCollect(LatLng markerLocation) {
         double yourLat = mMap.getMyLocation().getLatitude();
         double yourLong = mMap.getMyLocation().getLongitude();
         double mLat = markerLocation.latitude;
         double mLong = markerLocation.longitude;
 
-        return (distance(yourLat, yourLong, mLat, mLong) < 1000);
+        return (distance(yourLat, yourLong, mLat, mLong) < 0.03);
     }
 
     //Method return distance b/w two points on map in KM
@@ -271,7 +267,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
+    public void onBackPressed() {
+        Intent intent = new Intent(this,MenuActivity.class);
+        startActivity(intent);
+    }
 
+    //Async Task to parse the placemarkers and place them on a map
     private class KMlTask extends AsyncTask<Void,String,KMLPlacemarkers> {
 
         @Override
@@ -283,6 +284,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         @Override
         protected void onPostExecute(KMLPlacemarkers mlayer) {
+            //Clear any previous Placemarkers
             mMap.clear();
             String tempCoordinate;
             String d;
@@ -292,6 +294,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             for (int i = 0; i < placeMarkersList.size(); i++) {
+                //Only load the placemarkers of the words the user has not yet collected
                 if (!words.contains(placeMarkersList.get(i).getName())){
                     tempCoordinate = placeMarkersList.get(i).getPoint().getCoordinates();
                     d = tempCoordinate.substring(0, tempCoordinate.indexOf(','));
@@ -306,10 +309,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
+            //Action for pickup marker
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
 
+                    //Adds it into the database if user is close enough, and removes the marker
                     if (closeEnoughToCollect(marker.getPosition())) {
                         marker.remove();
                         Toast.makeText(getApplicationContext(), "Collected " + marker.getTitle(), Toast.LENGTH_SHORT).show();
@@ -330,14 +335,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+    //Returns true if there is internet connection
     public boolean hasInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
     }
+    //Toast to display when there is no internet
     public void noInternetToast() {
         Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
     }
 
+    //Task to parse the XML
     private class XMLTask extends AsyncTask<Void,String,SongParse> {
 
         @Override
@@ -348,6 +356,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(SongParse song) {
 
+            //Sets up the spinners
             final String[] listOfSongs = new String[theSongs.getSong().getSong().length];
             for (int i = 0; i < listOfSongs.length; i++) {
                 if (i <9) {
@@ -358,11 +367,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            ArrayAdapter<String> songsAdapter = new ArrayAdapter<>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
+            ArrayAdapter<String> songsAdapter = new ArrayAdapter<String>(MapsActivity.this, R.layout.dropdown_text_view, listOfSongs);
             songNo.setAdapter(songsAdapter);
 
             final String[] listOfLevels = {"1","2","3","4","5"};
-            ArrayAdapter<String> levelsAdapter = new ArrayAdapter<>(MapsActivity.this,R.layout.dropdown_text_view,listOfLevels);
+            ArrayAdapter<String> levelsAdapter = new ArrayAdapter<String>(MapsActivity.this,R.layout.dropdown_text_view,listOfLevels);
             levelNo.setAdapter(levelsAdapter);
 
             levelNo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -372,7 +381,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         noInternetToast();
                     }
                     else {
-                        if (!currentLevel.equals(listOfLevels[position])) {
+                        if (!currentLevel.equals(listOfLevels[position])) { //Only execute a new task if user changes Level
                             currentLevel = listOfLevels[position];
                             new KMlTask().execute();
                         }

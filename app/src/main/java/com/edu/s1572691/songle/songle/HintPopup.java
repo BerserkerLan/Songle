@@ -34,6 +34,9 @@ public class HintPopup extends Activity {
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
+
+
+        //Store this song in the usedHints shared preference as needed for an Achievement
         SharedPreferences settings = getSharedPreferences("usedHints",MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("title:" + title ,1);

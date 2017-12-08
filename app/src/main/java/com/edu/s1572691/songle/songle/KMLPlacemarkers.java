@@ -3,14 +3,13 @@ package com.edu.s1572691.songle.songle;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Created by Rusab Asher on 28/11/2017.
- */
+//PlaceMarker Parsing class
+
  public class KMLPlacemarkers
     {
         private Kml kml;
 
-        public Kml getKml() { return this.kml; }
+        Kml getKml() { return this.kml; }
 
         public void setKml(Kml kml) { this.kml = kml; }
     }
@@ -57,7 +56,7 @@ import java.util.ArrayList;
     {
         private String coordinates;
 
-        public String getCoordinates() { return this.coordinates; }
+        String getCoordinates() { return this.coordinates; }
 
         public void setCoordinates(String coordinates) { this.coordinates = coordinates; }
     }
@@ -84,7 +83,7 @@ import java.util.ArrayList;
 
         private Point Point;
 
-        public Point getPoint() { return this.Point; }
+        Point getPoint() { return this.Point; }
 
         public void setPoint(Point Point) { this.Point = Point; }
     }
@@ -99,7 +98,7 @@ import java.util.ArrayList;
 
         private ArrayList<Placemark> Placemark;
 
-        public ArrayList<Placemark> getPlacemark() { return this.Placemark; }
+        ArrayList<Placemark> getPlacemark() { return this.Placemark; }
 
         public void setPlacemark(ArrayList<Placemark> Placemark) { this.Placemark = Placemark; }
     }
@@ -114,7 +113,7 @@ import java.util.ArrayList;
 
         private Document Document;
 
-        public Document getDocument() { return this.Document; }
+        Document getDocument() { return this.Document; }
 
         public void setDocument(Document Document) { this.Document = Document; }
     }

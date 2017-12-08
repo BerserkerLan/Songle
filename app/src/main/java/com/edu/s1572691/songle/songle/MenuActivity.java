@@ -40,6 +40,7 @@ public class MenuActivity extends AppCompatActivity {
         final Intent showTutorial = new Intent(this, TutorialPopup.class);
         final Intent showAch = new Intent(this, AchievementPopup.class);
 
+        //Ask for permission if not granted
         if (!(ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)) {
@@ -95,16 +96,16 @@ public class MenuActivity extends AppCompatActivity {
     }
 
 
-
+    //Requests permission to use GPS/Location
     private void requestPermission() {
-//Function to request permission
         try {
             String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
             ActivityCompat.requestPermissions(this, permissions, 1);
         } catch (SecurityException e) {
-    /*Catch any Security Exceptions*/
+            e.printStackTrace();
         }
     }
+    //Checks if the user has Internet
     public boolean hasInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
@@ -112,12 +113,14 @@ public class MenuActivity extends AppCompatActivity {
         }
         return false;
     }
+    //Toast message to display in case of no Internet
     public void noInternetToast() {
         Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
     }
 
 
 
+    //So the application does not go to any previously opened activity that could lead to some bugs
     @Override
     public void onBackPressed() {
     }

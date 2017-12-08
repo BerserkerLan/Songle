@@ -40,14 +40,17 @@ public class GuessedSongWords extends YouTubeBaseActivity {
         String artist = getIntent().getExtras().getString("artist");
         String no = getIntent().getExtras().getString("num");
         final String youtubeURLg = getIntent().getExtras().getString("youtube");
+        //As the player only needs the youtube ID and not the whole URL
         final String youtubeURL = youtubeURLg.substring(youtubeURLg.lastIndexOf('/') + 1, youtubeURLg.length());
 
         setTitle(title);
 
+        //Sets up the youtube video player
         onInitializedListener = new YouTubePlayer.OnInitializedListener() {
             @Override
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
                 youTubePlayer.loadVideo(youtubeURL);
+
 
             }
 
@@ -56,7 +59,9 @@ public class GuessedSongWords extends YouTubeBaseActivity {
 
             }
         };
+        youTubePlayerView.initialize(PlayerConfig.API_KEY, onInitializedListener);
 
+        //Loads the words for the song
         parseLyrics(no);
 
         songTitle.setText("Name: " +  title);
@@ -93,9 +98,5 @@ public class GuessedSongWords extends YouTubeBaseActivity {
         Intent intent = new Intent(this,SongList.class);
         startActivity(intent);
     }
-    public void playYoutube(View v) {
-        youTubePlayerView.initialize(PlayerConfig.API_KEY, onInitializedListener);
 
-
-    }
 }

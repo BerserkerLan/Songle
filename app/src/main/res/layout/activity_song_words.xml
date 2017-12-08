@@ -39,10 +39,11 @@
         android:id="@+id/listenToSong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/guessSong"
+        android:layout_alignBaseline="@+id/guessSong"
+        android:layout_alignBottom="@+id/guessSong"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="65dp"
         android:background="@android:color/white"
-        android:layout_marginStart="72dp"
-        android:layout_toEndOf="@+id/guessSong"
         android:onClick="showHint"
         android:text="Hint" />
 </RelativeLayout>
