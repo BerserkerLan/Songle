@@ -7,9 +7,6 @@ import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.widget.TextView;
 
-/**
- * Created by Rusab Asher on 04/11/2017.
- */
 
 public class HintPopup extends Activity {
 

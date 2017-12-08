@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +16,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,6 +52,7 @@ public class SongWordsActivity extends AppCompatActivity {
         youtube = getIntent().getExtras().getString("youtube");
         percentageOfWords = getIntent().getExtras().getInt("percentageOfWordsCollected");
         setTitle("Song " + no);
+        wordText.getBackground().setAlpha(94);
         new LyricsTask().execute();
     }
 
@@ -130,6 +134,19 @@ public class SongWordsActivity extends AppCompatActivity {
 
     }
 
+    //Checks if the user has Internet
+    public boolean hasInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        }
+        return false;
+    }
+    //Toast message to display in case of no Internet
+    public void noInternetToast() {
+        Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
+    }
+
 
 
     public void popUpTheGuess(View v) {
@@ -151,10 +168,20 @@ public class SongWordsActivity extends AppCompatActivity {
 
 
     }
+    //In case internet stops midway, go back to the menu if no internet
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this,SongList.class);
-        startActivity(intent);
+        if (hasInternet()) {
+            Intent intent = new Intent(this, SongList.class);
+            startActivity(intent);
+            finish();
+        }
+        else {
+            Intent intent = new Intent(this,MenuActivity.class);
+            startActivity(intent);
+            noInternetToast();
+            finish();
+        }
     }
 
     private class LyricsTask extends AsyncTask<Void,String,String> {

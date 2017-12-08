@@ -79,6 +79,7 @@ public class SongList extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(this,MenuActivity.class);
         startActivity(intent);
+        finish();
     }
 
     //Method to set up Listview
@@ -239,8 +240,10 @@ public class SongList extends AppCompatActivity {
             intent2.putExtra("num", getSelected(v));
             if (((TextView) v.findViewById(R.id.percentTextView)).getText().toString().equals("100% words found")) {
                 startActivity(intent2);
+                finish();
             } else {
                 startActivity(intent);
+                finish();
             }
         }
     }

@@ -21,7 +21,7 @@ public class TutorialPopup extends Activity {
         setContentView(R.layout.popup_tutorial);
         tutText = (EditText) findViewById(R.id.tutorialText);
 
-        tutText.setText("Collect words from the campus for each song, to unlock words for that Song. Select the Song number by clicking the number while playing. Words are saved, and can be viewed in your List of songs. You can guess the song any time by pressing the \'Guess\' Button. You must complete a level (Collect all the words of that level) to progress to the next one.");
+        tutText.setText("Collect words from the campus for each song, to unlock words for that Song. Select the Song number by clicking the number while playing. Words are saved, and can be viewed in your List of songs. You can guess the song any time by pressing the \'Guess\' Button. You can also select which level you would like to play");
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);

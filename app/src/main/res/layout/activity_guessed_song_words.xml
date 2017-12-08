@@ -8,7 +8,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
+    android:background="@drawable/songle_menu_bg"
     tools:background="@color/cardview_light_background"
     tools:context="com.edu.s1572691.songle.songle.GuessedSongWords">
 
@@ -41,13 +41,12 @@
     <EditText
         android:id="@+id/songLyrics"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/artistName"
         android:layout_marginTop="15dp"
-        android:background="@null"
-        android:clickable="true"
         android:focusable="false"
+        android:background="@android:color/holo_blue_light"
         android:focusableInTouchMode="false"
         android:inputType="textMultiLine"
         android:text="lyrics"

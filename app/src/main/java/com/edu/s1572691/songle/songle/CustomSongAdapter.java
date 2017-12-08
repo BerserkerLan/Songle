@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class CustomSongAdapter extends BaseAdapter implements ListAdapter {
     private ArrayList<String> songPercents = new ArrayList<>();
     private Context context;
 
-    public CustomSongAdapter(ArrayList<String> songNames, ArrayList<String> songPercents, Context context) {
+    CustomSongAdapter(ArrayList<String> songNames, ArrayList<String> songPercents, Context context) {
         this.songNames = songNames;
         this.songPercents = songPercents;
         this.context = context;
@@ -48,8 +49,11 @@ public class CustomSongAdapter extends BaseAdapter implements ListAdapter {
 
         TextView songName = (TextView) view.findViewById(R.id.songNameTextView);
         TextView percentText = (TextView) view.findViewById(R.id.percentTextView);
+        RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.listRowLayout);
+
         songName.setText(songNames.get(position));
         percentText.setText(songPercents.get(position));
+        relativeLayout.getBackground().setAlpha(94);
         return view;
     }
 }

@@ -270,6 +270,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onBackPressed() {
         Intent intent = new Intent(this,MenuActivity.class);
         startActivity(intent);
+        finish();
     }
 
     //Async Task to parse the placemarkers and place them on a map

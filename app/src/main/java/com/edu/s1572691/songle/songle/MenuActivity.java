@@ -14,9 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+// The Homepage Activity, that starts up when you start the app
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -56,6 +54,7 @@ public class MenuActivity extends AppCompatActivity {
                 }
                 else {
                     startActivity(toMaps);
+                    finish();
                 }
             }
         });
@@ -66,6 +65,7 @@ public class MenuActivity extends AppCompatActivity {
                     noInternetToast();
                 } else {
                     startActivity(toSongs);
+                    finish();
                 }
             }
         });
@@ -123,5 +123,6 @@ public class MenuActivity extends AppCompatActivity {
     //So the application does not go to any previously opened activity that could lead to some bugs
     @Override
     public void onBackPressed() {
+        finish();
     }
 }

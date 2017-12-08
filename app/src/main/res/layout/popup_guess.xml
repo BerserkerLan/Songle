@@ -2,6 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:background="@drawable/custom_border"
+    android:id="@+id/guessBg"
     android:layout_height="match_parent">
 
     <TextView
@@ -11,6 +12,9 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="164dp"
+        android:textColor="@android:color/black"
+        android:fontFamily="Calibri"
+        android:textStyle="bold"
         android:textSize="23dp"
         android:text="Enter your guess: " />
 
@@ -28,10 +32,11 @@
     <Button
         android:id="@+id/guessButton"
         android:layout_width="wrap_content"
-        android:onClick="onGuessButtonClick"
         android:layout_height="wrap_content"
         android:layout_below="@+id/enterGuessText"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="37dp"
+        android:background="@android:color/holo_orange_light"
+        android:onClick="onGuessButtonClick"
         android:text="Enter" />
 </RelativeLayout>

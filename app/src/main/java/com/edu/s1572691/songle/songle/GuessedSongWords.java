@@ -1,11 +1,15 @@
 package com.edu.s1572691.songle.songle;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -93,10 +97,29 @@ public class GuessedSongWords extends YouTubeBaseActivity {
         lyrics = stringBuilder.toString();
 
     }
+    //Checks if the user has Internet
+    public boolean hasInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
+    }
+    //Toast message to display in case of no Internet
+    public void noInternetToast() {
+        Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
+    }
+    //Exit to menu if no internet
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this,SongList.class);
-        startActivity(intent);
+        if (hasInternet()) {
+            Intent intent = new Intent(this, SongList.class);
+            startActivity(intent);
+            finish();
+        }
+        else {
+            Intent intent = new Intent(this, MenuActivity.class);
+            startActivity(intent);
+            noInternetToast();
+            finish();
+        }
     }
 
 }

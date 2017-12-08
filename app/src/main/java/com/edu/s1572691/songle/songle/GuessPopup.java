@@ -10,14 +10,12 @@ import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.awt.font.TextAttribute;
 
-/**
- * Created by Rusab Asher on 30/10/2017.
- */
 
 public class GuessPopup extends Activity {
     String songName;
@@ -25,6 +23,7 @@ public class GuessPopup extends Activity {
     String songNo;
     String songArist;
     TextView GuessText;
+    RelativeLayout guessBG;
     int percentageCollected;
     long numberOfWordsCollected;
     Button GuessButton;
@@ -44,6 +43,9 @@ public class GuessPopup extends Activity {
 
         GuessText = (TextView) findViewById(R.id.enterGuessText);
         GuessButton = (Button) findViewById(R.id.guessButton);
+        guessBG = (RelativeLayout) findViewById(R.id.guessBg);
+
+        guessBG.getBackground().setAlpha(94);
 
 
         DisplayMetrics dm = new DisplayMetrics();
@@ -99,9 +101,6 @@ public class GuessPopup extends Activity {
     public boolean usedHint() {
         SharedPreferences settings = getSharedPreferences("usedHints",MODE_PRIVATE);
         int used = settings.getInt("title:" + songName,0);
-        if (used == 1) {
-            return true;
-        }
-        return false;
+        return used == 1;
     }
 }
