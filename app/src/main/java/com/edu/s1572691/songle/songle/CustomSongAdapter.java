@@ -49,11 +49,11 @@ public class CustomSongAdapter extends BaseAdapter implements ListAdapter {
 
         TextView songName = (TextView) view.findViewById(R.id.songNameTextView);
         TextView percentText = (TextView) view.findViewById(R.id.percentTextView);
-        RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.listRowLayout);
+        RelativeLayout rl = (RelativeLayout) view.findViewById(R.id.bgLayoutRow);
 
         songName.setText(songNames.get(position));
         percentText.setText(songPercents.get(position));
-        relativeLayout.getBackground().setAlpha(94);
+        rl.getBackground().setAlpha(94);
         return view;
     }
 }

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class AchievementsListAdapter extends BaseAdapter implements ListAdapter 
         TextView achievementTitle = (TextView) view.findViewById(R.id.achievementName);
         TextView achievementDescription = (TextView) view.findViewById(R.id.achievementDescription);
         ImageView achievementIcon = (ImageView) view.findViewById(R.id.achievementCircle);
+        RelativeLayout achievementBG = (RelativeLayout) view.findViewById(R.id.achievementBG);
 
         achievementTitle.setText(achievementNames.get(position));
         achievementDescription.setText(achievementDescriptions.get(position));
@@ -65,6 +67,9 @@ public class AchievementsListAdapter extends BaseAdapter implements ListAdapter 
         else {
             achievementIcon.setImageResource(R.drawable.circle_red);
         }
+        achievementBG.getBackground().setAlpha(255);
+
+
 
 
 
