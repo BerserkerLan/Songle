@@ -1,18 +1,18 @@
 package com.edu.s1572691.songle.songle;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.widget.EditText;
 
-/**
- * Created by Rusab Asher on 02/11/2017.
- */
+//Class to just show the tutorial/ How to Play
 
 public class TutorialPopup extends Activity {
 
     EditText tutText;
+    MediaPlayer songInBackground;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,9 +28,33 @@ public class TutorialPopup extends Activity {
 
         int width = dm.widthPixels;
         int height = dm.heightPixels;
+        playMusic();
 
         getWindow().setLayout((int)(width*0.8),(int) (height * 0.6));
 
+    }
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_home_music);
 
+        songInBackground.start();
+
+        songInBackground.setLooping(true);
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
     }
 }

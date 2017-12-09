@@ -2,6 +2,7 @@ package com.edu.s1572691.songle.songle;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ public class AchievementPopup extends Activity {
     ListView listOfAchievements;
     TextView numberAchieved;
     int achieved;
+    MediaPlayer songInBackground;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,9 +33,7 @@ public class AchievementPopup extends Activity {
         numberAchieved = (TextView) findViewById(R.id.numAchieved);
         achieved = 0;
 
-
         setUpAchievementListview();
-        
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -42,6 +42,7 @@ public class AchievementPopup extends Activity {
         int height = dm.heightPixels;
 
         getWindow().setLayout((width), (height));
+        playMusic();
     }
     public void setUpAchievementListview() {
         ArrayList<String> achievementTitles = new ArrayList<>();
@@ -57,12 +58,10 @@ public class AchievementPopup extends Activity {
 
         achievementDescriptions.add("Guess 3 Songs.");
         achievementDescriptions.add("Guess a song with only collecting words of one level.");
-        achievementDescriptions.add("Guess a songs without using the hint.");
+        achievementDescriptions.add("Guess a song without using the hint.");
         achievementDescriptions.add("Guess 10 songs.");
         achievementDescriptions.add("Guess a song without collecting any words.");
         achievementDescriptions.add("Collect all words of any song.");
-
-
 
         for (int i = 0; i < achievementTitles.size(); i++) {
                 isComplete.add(false);
@@ -82,12 +81,29 @@ public class AchievementPopup extends Activity {
         AchievementsListAdapter achievementsListAdapter = new AchievementsListAdapter(achievementTitles,achievementDescriptions,isComplete,this);
 
         listOfAchievements.setAdapter(achievementsListAdapter);
+    }
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_home_music);
 
+        songInBackground.start();
 
+        songInBackground.setLooping(true);
+    }
 
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
 
+    }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
     }
 }

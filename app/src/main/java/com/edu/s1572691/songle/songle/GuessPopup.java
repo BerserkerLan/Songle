@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -28,6 +29,7 @@ public class GuessPopup extends Activity {
     long numberOfWordsCollected;
     Button GuessButton;
     SQLiteDatabase guessedSongs;
+    MediaPlayer songInBackground;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +55,8 @@ public class GuessPopup extends Activity {
 
         int width = dm.widthPixels;
         int height = dm.heightPixels;
+
+        playMusic();
 
         //Used to scale the activity screen
         getWindow().setLayout((int)(width*0.8),(int) (height * 0.6));
@@ -102,5 +106,29 @@ public class GuessPopup extends Activity {
         SharedPreferences settings = getSharedPreferences("usedHints",MODE_PRIVATE);
         int used = settings.getInt("title:" + songName,0);
         return used == 1;
+    }
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_home_music);
+
+        songInBackground.start();
+
+        songInBackground.setLooping(true);
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
     }
 }

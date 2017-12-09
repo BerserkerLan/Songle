@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -39,6 +40,7 @@ public class SongWordsActivity extends AppCompatActivity {
     long countOfWordsCollected = 0;
     int percentageOfWords;
     SQLiteDatabase wordsDatabase;
+    MediaPlayer songInBackground;
 
 
     @Override
@@ -54,6 +56,7 @@ public class SongWordsActivity extends AppCompatActivity {
         setTitle("Song " + no);
         wordText.getBackground().setAlpha(94);
         new LyricsTask().execute();
+        playMusic();
     }
 
     public void parseLyrics(String songNo) {
@@ -132,6 +135,31 @@ public class SongWordsActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_home_music);
+
+        songInBackground.start();
+
+        songInBackground.setLooping(true);
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
     }
 
     //Checks if the user has Internet

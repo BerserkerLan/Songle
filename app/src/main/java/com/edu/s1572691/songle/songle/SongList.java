@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -46,6 +47,7 @@ public class SongList extends AppCompatActivity {
     ArrayList<String> titles;
     ArrayList<String> percents;
     String songURL;
+    MediaPlayer songInBackground;
 
     CustomSongAdapter songAdapter;
     int numOfWordsInSong;
@@ -70,7 +72,11 @@ public class SongList extends AppCompatActivity {
 
         songURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.txt";
 
+
+
         new XMLTask().execute();
+
+        playMusic();
 
 
     }
@@ -185,6 +191,30 @@ public class SongList extends AppCompatActivity {
 
         songAdapter = new CustomSongAdapter(songs,percents,this);
 
+    }
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_home_music);
+
+        songInBackground.start();
+
+        songInBackground.setLooping(true);
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
     }
     //Returns the number of words each song has
     public void getNumWordsInSongs(String songNo) {

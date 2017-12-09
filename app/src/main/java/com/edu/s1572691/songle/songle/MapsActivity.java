@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -65,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<String> words;
     int numOfMarkers;
     SongParse theSongs;
+    MediaPlayer songInBackground;
     KMLPlacemarkers placemarkers;
     String currentLevel;
     ArrayList<Placemark> placeMarkersList;
@@ -89,8 +91,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         songNo = (Spinner) findViewById(R.id.songNo);
         levelNo = (Spinner) findViewById(R.id.levelNo);
         new XMLTask().execute();
+
+        playMusic();
+
     }
 
+    //Method to get all kml placemarkers
     public void getKMLStream() {
         kmlURL = "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/" + currentSongNo + "/map" + currentLevel + ".txt";
             URL oracle;
@@ -336,6 +342,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_maps_music);
+
+        songInBackground.start();
+
+        songInBackground.setLooping(true);
+
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
+    }
     //Returns true if there is internet connection
     public boolean hasInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -414,7 +445,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
             });
-
         }
 
     }

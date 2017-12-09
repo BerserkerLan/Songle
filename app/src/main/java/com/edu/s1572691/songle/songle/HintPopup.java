@@ -2,6 +2,7 @@ package com.edu.s1572691.songle.songle;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -12,6 +13,7 @@ public class HintPopup extends Activity {
 
     TextView hint;
     TextView firstLineText;
+    MediaPlayer songInBackground;
 
 
     @Override
@@ -30,6 +32,8 @@ public class HintPopup extends Activity {
 
         int width = dm.widthPixels;
         int height = dm.heightPixels;
+
+        playMusic();
 
 
 
@@ -51,5 +55,29 @@ public class HintPopup extends Activity {
         firstLineText.setText("First Line of song: \n" + firstLine);
 
 
+    }
+    public void playMusic() {
+        songInBackground = songInBackground.create(getApplicationContext(),R.raw.songle_home_music);
+
+        songInBackground.start();
+
+        songInBackground.setLooping(true);
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (songInBackground.isPlaying()) {
+            songInBackground.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        songInBackground.start();
+        songInBackground.setLooping(true);
     }
 }

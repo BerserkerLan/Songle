@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
@@ -22,6 +23,7 @@ public class MenuActivity extends AppCompatActivity {
     Button goToSongs;
     Button showTut;
     Button showAchievements;
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +94,9 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
 
+        //Plays Home screen music
+        playMusic();
+
 
     }
 
@@ -116,6 +121,33 @@ public class MenuActivity extends AppCompatActivity {
     //Toast message to display in case of no Internet
     public void noInternetToast() {
         Toast.makeText(getApplicationContext(), "Please connect to the internet to play the game",Toast.LENGTH_LONG).show();
+    }
+
+    //Copyright free music from youtube, see documentation for credit !
+    //In case I forget: https://www.youtube.com/watch?v=GoPfCriKrcY
+    public void playMusic() {
+        mediaPlayer = MediaPlayer.create(getApplicationContext(),R.raw.songle_home_music);
+
+        mediaPlayer.start();
+
+        mediaPlayer.setLooping(true);
+    }
+
+    //Override methods as music was still playing when App was minimized........
+    @Override
+    protected void onPause() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mediaPlayer.start();
+        mediaPlayer.setLooping(true);
     }
 
 
