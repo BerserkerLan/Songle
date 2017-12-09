@@ -10,19 +10,15 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.SparseArray;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -37,7 +33,7 @@ public class SongWordsActivity extends AppCompatActivity {
     String youtube;
     String[] lyricsWords;
     String wordsWithDashes;
-    long countOfWordsCollected = 0;
+    long countOfWordsCollected;
     int percentageOfWords;
     SQLiteDatabase wordsDatabase;
     MediaPlayer songInBackground;
@@ -55,6 +51,7 @@ public class SongWordsActivity extends AppCompatActivity {
         percentageOfWords = getIntent().getExtras().getInt("percentageOfWordsCollected");
         setTitle("Song " + no);
         wordText.getBackground().setAlpha(94);
+        countOfWordsCollected = 0;
         new LyricsTask().execute();
         playMusic();
     }
